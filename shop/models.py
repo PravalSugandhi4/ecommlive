@@ -2,6 +2,18 @@ from django.db import models
 from django.contrib.auth.models import User
 # Create your models here.
 from django.contrib import admin
+from django.utils import timezone
+
+#------------------------------------banner model------------------------------------
+class Banner(models.Model):
+    bannerid = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=1000)
+    image = models.ImageField(upload_to='myshop/media/', null=True, blank=True)
+
+    def __str__(self):
+        return self.title
+
+
 #------------------------------------user register model------------------------------------
 
 
@@ -18,23 +30,6 @@ class users(models.Model):
 
     def __str__(self):
         return self.username
-    
-
-
-
-
-#------------------------------------wishlist model------------------------------------
-    
-class wishlist(models.Model):
-    wishlistid = models.AutoField(primary_key=True)
-    userid = models.ForeignKey(users, on_delete=models.CASCADE)
-    productid = models.IntegerField()
-
-    def __str__(self):
-        return f"Wishlist {self.wishlistid} for User {self.userid.username}"
-
-
-
 
 #------------------------------------categories model------------------------------------
 
@@ -44,7 +39,8 @@ class Categories(models.Model):
     
     def __str__(self):
         return self.name
-    
+
+
 
 
 
@@ -65,5 +61,71 @@ class Products(models.Model):
 
     def __str__(self):
         return f"{self.productid} - {self.name}"
+
+
+
+#------------------------------------wishlist model------------------------------------
+    
+class wishlist(models.Model):
+    wishlistid = models.AutoField(primary_key=True)
+    userid = models.ForeignKey(users, on_delete=models.CASCADE)
+    productid = models.ForeignKey(Products, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.userid.username} "
+#-------------------------------------cart model------------------------------------
+class cart(models.Model):
+    cartid = models.AutoField(primary_key=True)
+    userid = models.ForeignKey(users, on_delete=models.CASCADE)
+    productid = models.ForeignKey(Products, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.userid.username} - {self.productid.name} ({self.quantity})"
+#------------------------------------order model------------------------------------
+class Order(models.Model):
+    orderid = models.AutoField(primary_key=True)
+    userid = models.ForeignKey(users, on_delete=models.CASCADE)
+    totalbillamount = models.DecimalField(max_digits=10, decimal_places=2)
+    order_date = models.DateTimeField(auto_now_add=True)    
+
+
+    def __str__(self):
+        return f"Order {self.orderid} by {self.userid.username}"
+    
+
+#------------------------------------order item model------------------------------------
+class OrderItem(models.Model):
+    orderitemid = models.AutoField(primary_key=True)
+    orderid = models.ForeignKey(Order, on_delete=models.CASCADE)
+    productid = models.ForeignKey(Products, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.orderid.orderid} - {self.productid.name} ({self.quantity})"
+    
+#-----------------------------place order-------------------------------------------------
+
+class PlaceOrder(models.Model):
+    name = models.CharField(max_length=100)
+    address = models.CharField(max_length=300)
+    phonenumber = models.CharField(max_length=10)
+    ordertime = models.DateTimeField(auto_now_add=True)
+    orders = models.ForeignKey(Order, on_delete=models.CASCADE)
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
 
     
